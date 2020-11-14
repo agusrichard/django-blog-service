@@ -16,7 +16,9 @@ class AuthUserRegistrationView(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
+        print('Registration request.data', request.data)
         serializer = self.serializer_class(data=request.data)
+        print('Registration serializer', serializer)
         valid = serializer.is_valid(raise_exception=True)
 
         if valid:
