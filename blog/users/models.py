@@ -9,12 +9,15 @@ from .managers import CustomUserManager
 
 class User(AbstractBaseUser, PermissionsMixin):
 
-    # ADMIN = 1
-    # MODERATOR = 2
+    ADMIN = 1
+    MODERATOR = 2
+    NORMAL = 3
 
-    # ROLE_CHOICES = (
-
-    # )
+    ROLE_CHOICES = (
+        (ADMIN, 'Admin'),
+        (MODERATOR, 'Manager'),
+        (NORMAL, 'Normal')
+    )
 
     class Meta:
         verbose_name = 'user'
@@ -22,8 +25,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     uid = models.UUIDField(unique=True, editable=False, default=uuid.uuid4, verbose_name='Public Identifier')
     email = models.EmailField(unique=True)
+    username = models.CharField(unique=True, max_length=100)
     full_name = models.CharField(max_length=100, blank=True)
-    # role = 
+    role = models.PositiveSmallIntegerField(choices=ROLE_CHOICES, blank=True, null=True, default=3)
     date_joined = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
@@ -33,6 +37,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     modified_date = models.DateTimeField(default=timezone.now)
 
     REQUIRED_FIELDS = []
+    USERNAME_FIELD = 'username'
 
     objects = CustomUserManager()
 
