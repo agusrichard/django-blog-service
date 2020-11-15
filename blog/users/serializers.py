@@ -15,9 +15,10 @@ class AuthUserRegistrationSerializer(serializers.ModelSerializer):
             'password',
         )
 
-    def create(self, **validated_data):
+    def create(self, validated_data):
         print("AuthUserRegistrationSerializer", validated_data)
-        auth_user = User.objects.create_user(**validated_data)
+        auth_user = User.objects.create_user(email=validated_data['email'], password=validated_data['password'], **validated_data)
+
         return auth_user
 
 class AuthUserLoginSerializer(serializers.Serializer):

@@ -16,23 +16,26 @@ class AuthUserRegistrationView(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
-        print('Registration request.data', request.data)
-        serializer = self.serializer_class(data=request.data)
-        print('Registration serializer', serializer)
-        valid = serializer.is_valid(raise_exception=True)
+        try:
+            print('Registration request.data', request.data)
+            serializer = self.serializer_class(data=request.data)
+            print('Registration serializer', serializer)
+            valid = serializer.is_valid(raise_exception=True)
 
-        if valid:
-            serializer.save()
-            status_code = status.HTTP_201_CREATED
+            if valid:
+                serializer.save()
+                status_code = status.HTTP_201_CREATED
 
-            response = {
-                'success': True,
-                'statusCode': status_code,
-                'message': 'User successfully registered!',
-                'user': serializer.data
-            }
+                response = {
+                    'success': True,
+                    'statusCode': status_code,
+                    'message': 'User successfully registered!',
+                    'user': serializer.data
+                }
 
-            return Response(response, status=status_code)
+                return Response(response, status=status_code)
+        except Exception as error:
+            return Response({'success': False, 'message': 'Interval Server Error', 'error': str(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
 
 class AuthUserLoginView(APIView):
     serializer_class = AuthUserLoginSerializer
