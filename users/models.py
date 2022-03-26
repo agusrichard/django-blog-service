@@ -21,5 +21,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
+    class Meta:
+        ordering = ["date_joined"]
+
     def __str__(self):
         return f"<User: {self.email}>"
