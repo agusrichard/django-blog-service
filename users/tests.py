@@ -15,10 +15,10 @@ class UserTests(TestCase):
         self.assertTrue(new_superuser.is_staff)
         self.assertTrue(new_superuser.is_superuser)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as err:
             db.objects.create_superuser(
                 email="email@example.com",
-                user_name="user_name1",
+                user_name="user_name",
                 password="password",
                 is_superuser=False,
             )
@@ -26,7 +26,7 @@ class UserTests(TestCase):
         with self.assertRaises(ValueError):
             db.objects.create_superuser(
                 email="email@example.com",
-                user_name="user_name1",
+                user_name="user_name",
                 password="password",
                 is_staff=False,
             )
