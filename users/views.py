@@ -7,7 +7,7 @@ from users.models import User
 from users.serializers import UserSerializer
 
 
-class UserCreate(APIView):
+class CreateUserView(APIView):
     def post(self, request):
         try:
             serializer = UserSerializer(data=request.data)
