@@ -1,4 +1,7 @@
+from django.urls import reverse
 from django.test import TestCase
+from rest_framework import status
+from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
 
 
@@ -51,3 +54,22 @@ class UserTests(TestCase):
 
         with self.assertRaises(ValueError):
             db.objects.create_user("", "user_name3", "password")
+
+
+class UserAPITests(APITestCase):
+    def test_user_api(self):
+        url = reverse("users:create_user")
+        data = {
+            "email": "test_user@example.com",
+            "user_name": "test_user",
+            "password": "test_user",
+        }
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data.get("email"), "test_user@example.com")
+        self.assertEqual(response.data.get("user_name"), "test_user")
+        self.assertEqual(response.data.get("first_name"), "")
+        self.assertEqual(response.data.get("last_name"), "")
+        self.assertEqual(response.data.get("bio"), "")
+        self.assertFalse(response.data.get("is_active"))
+        self.assertFalse(response.data.get("is_staff"))
