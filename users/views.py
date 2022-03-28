@@ -1,13 +1,16 @@
-from django.db import IntegrityError
 from rest_framework import status
-from rest_framework.views import APIView
+from django.db import IntegrityError
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from rest_framework_simplejwt.views import TokenObtainPairView
 
-from users.models import User
-from users.serializers import UserSerializer
+from users.serializers import UserSerializer, CustomTokenObtainPairSerializer
 
 
-class CreateUserView(APIView):
+class UserCreateView(CreateAPIView):
+    serializer_class = UserSerializer
+
     def post(self, request):
         try:
             serializer = UserSerializer(data=request.data)
@@ -21,3 +24,12 @@ class CreateUserView(APIView):
                 {"message": "Wrong email or password"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
+class UserRetrieveView(RetrieveAPIView):
+    serializer_class = UserSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer

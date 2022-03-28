@@ -1,4 +1,6 @@
+from django.utils import timezone
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from users.models import User
 
@@ -12,6 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         extra_kwargs = {"password": {"write_only": True}}
         fields = (
+            "id",
             "email",
             "user_name",
             "first_name",
@@ -39,3 +42,13 @@ class UserSerializer(serializers.ModelSerializer):
         instance.bio = validated_data.get("bio", instance.bio)
         instance.save()
         return instance
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        user.last_login = timezone.now()
+        user.save()
+        token = super().get_token(user)
+
+        return token
