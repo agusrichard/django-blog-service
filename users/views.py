@@ -1,8 +1,9 @@
 from rest_framework import status
 from django.db import IntegrityError
+from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from users.serializers import UserSerializer, CustomTokenObtainPairSerializer
@@ -26,9 +27,20 @@ class UserCreateView(CreateAPIView):
             )
 
 
-class UserRetrieveView(RetrieveAPIView):
-    serializer_class = UserSerializer
+class UserRetrieveUpdateView(APIView):
     permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        serializer = UserSerializer(request.user, data=request.data, partial=True)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):

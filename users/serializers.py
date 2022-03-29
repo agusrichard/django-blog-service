@@ -6,10 +6,6 @@ from users.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(required=True)
-    user_name = serializers.CharField(required=True)
-    password = serializers.CharField(min_length=5, write_only=True)
-
     class Meta:
         model = User
         extra_kwargs = {"password": {"write_only": True}}
@@ -27,6 +23,15 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
+        if validated_data.get("email") is None:
+            raise serializers.ValidationError("email is required")
+
+        if validated_data.get("user_name") is None:
+            raise serializers.ValidationError("user_name is required")
+
+        if validated_data.get("password") is None:
+            raise serializers.ValidationError("password is required")
+
         password = validated_data.pop("password", None)
         instance = self.Meta.model(**validated_data)
         if password is not None:
@@ -35,8 +40,6 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
     def update(self, instance, validated_data):
-        instance.email = validated_data.get("email", instance.email)
-        instance.user_name = validated_data.get("user_name", instance.user_name)
         instance.first_name = validated_data.get("first_name", instance.first_name)
         instance.last_name = validated_data.get("last_name", instance.last_name)
         instance.bio = validated_data.get("bio", instance.bio)
