@@ -56,3 +56,14 @@ class PostRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def delete(self, request, pk):
+        post = Post.objects.get(pk=pk)
+        if post.author != request.user:
+            return Response(
+                {"message": "You are not allowed to delete this post"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        post.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
