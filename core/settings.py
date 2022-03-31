@@ -135,7 +135,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
+    "USER_AUTHENTICATION_RULE": "users.authentications.user_authentication_rule",
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
-    "USER_AUTHENTICATION_RULE": "users.authentications.user_authentication_rule",
 }

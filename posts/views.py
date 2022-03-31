@@ -40,3 +40,19 @@ class PostListCreateView(ListCreateAPIView):
 class PostRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def patch(self, request, pk):
+        post = Post.objects.get(pk=pk)
+        if post.author != request.user:
+            return Response(
+                {"message": "You are not allowed to edit this post"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        serializer = PostSerializer(post, data=request.data, partial=True)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
