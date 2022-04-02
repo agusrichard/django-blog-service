@@ -5,6 +5,12 @@ from django.db import IntegrityError
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
 
+from users.utils import (
+    RELATIONSHIP_BLOCKED,
+    RELATIONSHIP_FOLLOWING,
+    RELATIONSHIP_STATUSES,
+)
+
 
 class UserTests(TestCase):
     def test_new_superuser(self):
@@ -102,6 +108,33 @@ class UserTests(TestCase):
         user.delete()
         with self.assertRaises(db.DoesNotExist):
             db.objects.get(email="email@example.com")
+
+    def test_follow_user(self):
+        user1, user2 = self.create_two_users()
+
+        user1.add_relationship(user2, status=RELATIONSHIP_FOLLOWING)
+        user2.add_relationship(user1, status=RELATIONSHIP_FOLLOWING)
+
+        self.assertEqual(len(user1.get_relationships(status=RELATIONSHIP_FOLLOWING)), 1)
+        self.assertEqual(len(user2.get_relationships(status=RELATIONSHIP_FOLLOWING)), 1)
+
+    def test_block_user(self):
+        user1, user2 = self.create_two_users()
+
+        user1.add_relationship(user2, status=RELATIONSHIP_BLOCKED)
+        user2.add_relationship(user1, status=RELATIONSHIP_BLOCKED)
+
+        self.assertEqual(len(user1.get_relationships(status=RELATIONSHIP_BLOCKED)), 1)
+        self.assertEqual(len(user2.get_relationships(status=RELATIONSHIP_BLOCKED)), 1)
+
+    def create_two_users(self):
+        db = get_user_model()
+        user1 = db.objects.create_user("email1@example.com", "user_name1", "password")
+        user2 = db.objects.create_user("email2@example.com", "user_name2", "password")
+        user1.save()
+        user2.save()
+
+        return user1, user2
 
 
 class UserAPITests(APITestCase):
