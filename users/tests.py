@@ -8,7 +8,6 @@ from django.contrib.auth import get_user_model
 from users.utils import (
     RELATIONSHIP_BLOCKED,
     RELATIONSHIP_FOLLOWING,
-    RELATIONSHIP_STATUSES,
 )
 
 
@@ -112,8 +111,8 @@ class UserTests(TestCase):
     def test_follow_user(self):
         user1, user2 = self.create_two_users()
 
-        user1.add_relationship(user2, status=RELATIONSHIP_FOLLOWING)
-        user2.add_relationship(user1, status=RELATIONSHIP_FOLLOWING)
+        user1.follow(user2)
+        user2.follow(user1)
 
         self.assertEqual(len(user1.get_relationships(status=RELATIONSHIP_FOLLOWING)), 1)
         self.assertEqual(len(user2.get_relationships(status=RELATIONSHIP_FOLLOWING)), 1)
@@ -121,8 +120,8 @@ class UserTests(TestCase):
     def test_block_user(self):
         user1, user2 = self.create_two_users()
 
-        user1.add_relationship(user2, status=RELATIONSHIP_BLOCKED)
-        user2.add_relationship(user1, status=RELATIONSHIP_BLOCKED)
+        user1.block(user2)
+        user2.block(user1)
 
         self.assertEqual(len(user1.get_relationships(status=RELATIONSHIP_BLOCKED)), 1)
         self.assertEqual(len(user2.get_relationships(status=RELATIONSHIP_BLOCKED)), 1)

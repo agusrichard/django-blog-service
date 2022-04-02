@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
 from users.managers import UserManager
 from users.utils import (
+    RELATIONSHIP_BLOCKED,
     RELATIONSHIP_FOLLOWING,
     RELATIONSHIP_STATUSES,
 )
@@ -49,6 +50,21 @@ class User(AbstractBaseUser, PermissionsMixin):
     def remove_relationship(self, user):
         Relationship.objects.filter(from_user=self, to_user=user).delete()
 
+    def follow(self, user_id):
+        user = User.objects.get(id=user_id)
+        return self.add_relationship(user, RELATIONSHIP_FOLLOWING)
+
+    def unfollow(self, user_id):
+        user = User.objects.get(id=user_id)
+        self.remove_relationship(user)
+
+    def block(self, user_id):
+        user = User.objects.get(id=user_id)
+        return self.add_relationship(user, RELATIONSHIP_BLOCKED)
+
+    def unblock(self, user_id):
+        self.unfollow(user_id)
+
     def get_relationships(self, status):
         return self.relationships.filter(
             following__status=status, following__from_user=self
@@ -78,6 +94,6 @@ class Relationship(models.Model):
 
     def __str__(self):
         if self.status == RELATIONSHIP_FOLLOWING:
-            return f"{self.from_user} follows {self.to_user}"
+            return f"{self.from_user} follow {self.to_user}"
         else:
-            return f"{self.from_user} blocks {self.to_user}"
+            return f"{self.from_user} block {self.to_user}"
