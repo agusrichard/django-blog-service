@@ -7,6 +7,7 @@ from rest_framework.generics import CreateAPIView
 from django.contrib.auth.hashers import check_password
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.decorators import api_view, permission_classes
 
 from users.utils import RelationshipActions
 from users.serializers import UserSerializer, CustomTokenObtainPairSerializer
@@ -102,3 +103,21 @@ class UserRelationshipView(CreateAPIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except get_user_model().DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_followers(request):
+    user = request.user
+    followers = user.get_followers()
+    serializer = UserSerializer(followers, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_following(request):
+    user = request.user
+    following = user.get_following()
+    serializer = UserSerializer(following, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
