@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
+from likes.models import Like
+
 
 class Post(models.Model):
     title = models.CharField(max_length=100)
@@ -13,3 +15,9 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+    def like(self, user):
+        Like.objects.create(user=user, post=self)
+
+    def get_likes(self):
+        return Like.objects.filter(post=self)

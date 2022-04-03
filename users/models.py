@@ -33,7 +33,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         ordering = ["date_joined"]
 
     def __str__(self):
-        return f"<User: {self.email}>"
+        return self.email
 
     @property
     def full_name(self):
@@ -94,6 +94,6 @@ class Relationship(models.Model):
 
     def __str__(self):
         if self.status == RELATIONSHIP_FOLLOWING:
-            return f"{self.from_user} follow {self.to_user}"
+            return f"{self.from_user} follows {self.to_user}"
         else:
-            return f"{self.from_user} block {self.to_user}"
+            return f"{self.from_user} blocks {self.to_user}"

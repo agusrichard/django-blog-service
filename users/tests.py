@@ -55,7 +55,7 @@ class UserTests(TestCase):
     def assert_superuser_content(self, user):
         self.assertEqual(user.email, "email@example.com")
         self.assertEqual(user.user_name, "user_name")
-        self.assertEqual(str(user), "<User: email@example.com>")
+        self.assertEqual(str(user), "email@example.com")
         self.assertTrue(user.is_active)
         self.assertTrue(user.is_staff)
         self.assertTrue(user.is_superuser)
@@ -63,7 +63,7 @@ class UserTests(TestCase):
     def assert_user_content(self, user):
         self.assertEqual(user.email, "email@example.com")
         self.assertEqual(user.user_name, "user_name")
-        self.assertEqual(str(user), "<User: email@example.com>")
+        self.assertEqual(str(user), "email@example.com")
         self.assertFalse(user.is_active)
         self.assertFalse(user.is_staff)
         self.assertFalse(user.is_superuser)
@@ -111,8 +111,8 @@ class UserTests(TestCase):
     def test_follow_user(self):
         user1, user2 = self.create_two_users()
 
-        user1.follow(user2)
-        user2.follow(user1)
+        user1.follow(user2.id)
+        user2.follow(user1.id)
 
         self.assertEqual(len(user1.get_relationships(status=RELATIONSHIP_FOLLOWING)), 1)
         self.assertEqual(len(user2.get_relationships(status=RELATIONSHIP_FOLLOWING)), 1)
@@ -120,8 +120,8 @@ class UserTests(TestCase):
     def test_block_user(self):
         user1, user2 = self.create_two_users()
 
-        user1.block(user2)
-        user2.block(user1)
+        user1.block(user2.id)
+        user2.block(user1.id)
 
         self.assertEqual(len(user1.get_relationships(status=RELATIONSHIP_BLOCKED)), 1)
         self.assertEqual(len(user2.get_relationships(status=RELATIONSHIP_BLOCKED)), 1)
