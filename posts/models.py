@@ -22,5 +22,8 @@ class Post(models.Model):
     def like(self, user):
         Like.objects.create(user=user, post=self)
 
+    def unlike(self, user):
+        Like.objects.filter(user=user, post=self).delete()
+
     def get_likes(self):
-        return self.likes.filter(post=self)
+        return self.likes.all()
