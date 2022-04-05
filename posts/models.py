@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 
 from likes.models import Like
+from comments.models import Comment
 
 
 class Post(models.Model):
@@ -27,3 +28,10 @@ class Post(models.Model):
 
     def get_likes(self):
         return self.likes.all()
+
+    def add_comment(self, user, content):
+        comment = Comment(user=user, post=self, content=content)
+        comment.save()
+
+    def get_comments(self):
+        return Comment.objects.filter(post=self)
