@@ -1,10 +1,11 @@
 from rest_framework import status
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
 from posts.models import Post
-from posts.serializers import PostSerializer
+from posts.serializers import PostSerializer, CommentSerializer
 
 
 class PostListCreateView(ListCreateAPIView):
@@ -66,3 +67,19 @@ class PostRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class PostCommentView(APIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, post_id):
+        post = Post.objects.get(pk=post_id)
+        post.add_comment(request.user, request.data.get("comment"))
+        return Response(status=status.HTTP_201_CREATED)
+
+    def get(self, request, post_id):
+        post = Post.objects.get(pk=post_id)
+        serializer = CommentSerializer(post.get_comments(), many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
