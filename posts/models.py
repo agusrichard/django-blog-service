@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth import get_user_model
 
 from likes.models import Like
-from comments.models import Comment
 
 
 class Post(models.Model):
