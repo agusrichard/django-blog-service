@@ -10,60 +10,65 @@ from users.utils import (
     RELATIONSHIP_FOLLOWING,
 )
 
+CONST_EMAIL = "email@example.com"
+CONST_USERNAME = "user_name"
+CONST_PASSWORD = "password"
+CONST_NAMESPACE_ACTIVATE_URL = "users:activate_user"
+
 
 class UserTests(TestCase):
     def test_new_superuser(self):
         db = get_user_model()
         new_superuser = db.objects.create_superuser(
-            "email@example.com", "user_name", "password"
+            CONST_EMAIL, CONST_USERNAME, CONST_PASSWORD
         )
         self.assert_superuser_content(new_superuser)
 
         with self.assertRaises(ValueError):
             db.objects.create_superuser(
-                email="email@example.com",
-                user_name="user_name",
-                password="password",
+                email=CONST_EMAIL,
+                user_name=CONST_USERNAME,
+                password=CONST_PASSWORD,
                 is_superuser=False,
             )
 
         with self.assertRaises(ValueError):
             db.objects.create_superuser(
-                email="email@example.com",
-                user_name="user_name",
-                password="password",
+                email=CONST_EMAIL,
+                user_name=CONST_USERNAME,
+                password=CONST_PASSWORD,
                 is_staff=False,
             )
 
         with self.assertRaises(ValueError):
             db.objects.create_superuser(
                 email="",
-                user_name="user_name",
-                password="password",
+                user_name=CONST_USERNAME,
+                password=CONST_PASSWORD,
                 is_superuser=True,
             )
 
     def test_new_user(self):
         db = get_user_model()
-        new_user = db.objects.create_user("email@example.com", "user_name", "password")
+        new_user = db.objects.create_user(CONST_EMAIL, CONST_USERNAME, CONST_PASSWORD)
         new_user.save()
         self.assert_user_content(new_user)
 
         with self.assertRaises(ValueError):
-            db.objects.create_user("", "user_name3", "password")
+            db.objects.create_user("", "user_name3", CONST_PASSWORD)
 
     def assert_superuser_content(self, user):
-        self.assertEqual(user.email, "email@example.com")
-        self.assertEqual(user.user_name, "user_name")
-        self.assertEqual(str(user), "email@example.com")
+        self.assertEqual(user.email, CONST_EMAIL)
+        self.assertEqual(user.user_name, CONST_USERNAME)
+        self.assertEqual(str(user), CONST_EMAIL)
         self.assertTrue(user.is_active)
         self.assertTrue(user.is_staff)
         self.assertTrue(user.is_superuser)
 
     def assert_user_content(self, user):
-        self.assertEqual(user.email, "email@example.com")
-        self.assertEqual(user.user_name, "user_name")
-        self.assertEqual(str(user), "email@example.com")
+        self.assertEqual(user.email, CONST_EMAIL)
+        self.assertEqual(user.user_name, CONST_USERNAME)
+        self.assertEqual(str(user), CONST_EMAIL)
         self.assertFalse(user.is_active)
         self.assertFalse(user.is_staff)
         self.assertFalse(user.is_superuser)
@@ -71,13 +76,13 @@ class UserTests(TestCase):
     def test_user_notfound(self):
         db = get_user_model()
         with self.assertRaises(db.DoesNotExist):
-            db.objects.get(email="email@example.com")
+            db.objects.get(email=CONST_EMAIL)
 
     def test_new_user_same_email(self):
         db = get_user_model()
-        db.objects.create_user("email@example.com", "user_name1", "password1")
+        db.objects.create_user(CONST_EMAIL, "user_name1", "password1")
         with self.assertRaises(IntegrityError):
-            db.objects.create_user("email@example.com", "user_name2", "password2")
+            db.objects.create_user(CONST_EMAIL, "user_name2", "password2")
 
     def test_new_user_same_user_name(self):
         db = get_user_model()
@@ -87,7 +92,7 @@ class UserTests(TestCase):
 
     def test_update_user(self):
         db = get_user_model()
-        user = db.objects.create_user("email@example.com", "user_name", "password")
+        user = db.objects.create_user(CONST_EMAIL, CONST_USERNAME, CONST_PASSWORD)
         self.assert_user_content(user)
 
         user.first_name = "first_name"
@@ -101,12 +106,12 @@ class UserTests(TestCase):
 
     def test_delete_user(self):
         db = get_user_model()
-        user = db.objects.create_user("email@example.com", "user_name", "password")
+        user = db.objects.create_user(CONST_EMAIL, CONST_USERNAME, CONST_PASSWORD)
         user.save()
 
         user.delete()
         with self.assertRaises(db.DoesNotExist):
-            db.objects.get(email="email@example.com")
+            db.objects.get(email=CONST_EMAIL)
 
     def test_follow_user(self):
         user1, user2 = self.create_two_users()
@@ -128,8 +133,12 @@ class UserTests(TestCase):
 
     def create_two_users(self):
         db = get_user_model()
-        user1 = db.objects.create_user("email1@example.com", "user_name1", "password")
-        user2 = db.objects.create_user("email2@example.com", "user_name2", "password")
+        user1 = db.objects.create_user(
+            "email1@example.com", "user_name1", CONST_PASSWORD
+        )
+        user2 = db.objects.create_user(
+            "email2@example.com", "user_name2", CONST_PASSWORD
+        )
         user1.save()
         user2.save()
 
@@ -162,7 +171,7 @@ class UserAPITests(APITestCase):
         response_create, data = self.create_user()
         self.assertEqual(response_create.status_code, status.HTTP_201_CREATED)
 
-        url = reverse("users:activate_user")
+        url = reverse(CONST_NAMESPACE_ACTIVATE_URL)
         response_activate = self.client.post(url, data, format="json")
         self.assertEqual(response_activate.status_code, status.HTTP_200_OK)
 
@@ -170,7 +179,7 @@ class UserAPITests(APITestCase):
         response_create, data = self.create_user()
         self.assertEqual(response_create.status_code, status.HTTP_201_CREATED)
 
-        url = reverse("users:activate_user")
+        url = reverse(CONST_NAMESPACE_ACTIVATE_URL)
         response_activate = self.client.post(url, data, format="json")
         self.assertEqual(response_activate.status_code, status.HTTP_200_OK)
 
@@ -184,7 +193,7 @@ class UserAPITests(APITestCase):
         response_create, data = self.create_user()
         self.assertEqual(response_create.status_code, status.HTTP_201_CREATED)
 
-        url = reverse("users:activate_user")
+        url = reverse(CONST_NAMESPACE_ACTIVATE_URL)
         response_activate = self.client.post(url, data, format="json")
         self.assertEqual(response_activate.status_code, status.HTTP_200_OK)
 
