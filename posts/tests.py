@@ -18,7 +18,7 @@ class PostTests(TestCase):
     def create_user_post(self):
         user_model = get_user_model()
         user = user_model.objects.create_superuser(
-            "email@example.com", "user_name", "password"
+            CONST_EMAIL, CONST_USERNAME, CONST_PASSWORD
         )
         post = Post.objects.create(
             title=CONST_TITLE, content=CONST_CONTENT, author=user
